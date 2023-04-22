@@ -29,12 +29,20 @@ async def create_item(request: Request):
     max_length = json_post_list.get('max_length')
     top_p = json_post_list.get('top_p')
     temperature = json_post_list.get('temperature')
+    print("recive history ", history)
     response, history = model.chat(tokenizer,
                                    prompt,
                                    history=history,
                                    max_length=max_length if max_length else 2048,
                                    top_p=top_p if top_p else 0.7,
                                    temperature=temperature if temperature else 0.95)
+    #模型history输出格式有问题，需要处理一下，否则传进去计算会有问题。
+    print("after history", history)
+    history.remove((prompt, response))                 
+    history.append({
+        "query": prompt,
+        "response": response 
+    })
     now = datetime.datetime.now()
     time = now.strftime("%Y-%m-%d %H:%M:%S")
     answer = {
